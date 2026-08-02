@@ -7,7 +7,21 @@ import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getBrandPath } from "@/lib/config/brands"
 
-export function HomeCTA() {
+import { HomepageSection } from "@/backend/core/domain/types"
+
+interface HomeCTAProps {
+  sectionData?: HomepageSection;
+}
+
+export function HomeCTA({ sectionData }: HomeCTAProps) {
+  if (sectionData && !sectionData.isVisible) return null;
+
+  const title = sectionData?.title || "Your Next Investment Decision Should Be Your Best One.";
+  const subtitle = sectionData?.subtitle || "Begin Your Journey";
+  const description = sectionData?.description || "Our advisors work with a limited number of serious investors at a time — ensuring undivided attention and deeply personalised guidance.";
+  const ctaText = sectionData?.ctaText || "Schedule a Consultation";
+  const ctaLink = sectionData?.ctaLink || "/contact";
+
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background */}
@@ -24,17 +38,17 @@ export function HomeCTA() {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <p className="text-primary font-semibold uppercase tracking-[0.3em] text-sm mb-6">Begin Your Journey</p>
-            <h2 className="font-heading text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Your Next Investment Decision Should Be Your Best One.
+            <p className="text-primary font-semibold uppercase tracking-[0.3em] text-sm mb-6">{subtitle}</p>
+            <h2 className="font-heading text-4xl md:text-6xl font-bold text-white mb-6 leading-tight whitespace-pre-line">
+              {title}
             </h2>
             <p className="text-muted-foreground text-lg mb-10 max-w-xl mx-auto">
-              Our advisors work with a limited number of serious investors at a time — ensuring undivided attention and deeply personalised guidance.
+              {description}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button size="lg" className="w-full sm:w-auto text-base h-12" asChild>
-                <Link href={getBrandPath("/contact")}>
-                  Schedule a Consultation
+                <Link href={getBrandPath(ctaLink)}>
+                  {ctaText}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>

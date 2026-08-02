@@ -1,0 +1,197 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Property {
+  id                   String   @id @default(cuid())
+  title                String
+  slug                 String   @unique
+  description          String
+  investmentHighlights String?
+  price                String
+  type                 String
+  status               String   // "Draft" | "Published" | "Sold"
+  builder              String
+  area                 String
+  rera                 String?
+  bedrooms             Int?
+  bathrooms            Int?
+  parking              Int?
+  amenities            Json     // string[]
+  financials           Json     // PropertyFinancials
+  location             Json     // PropertyLocation
+  media                Json?    // PropertyMedia
+  seo                  Json?    // PropertySEO
+  contact              Json?    // PropertyContact
+  images               Json     // PropertyImage[]
+  isFeatured           Boolean  @default(false)
+  city                 String
+  availability         String?  // "Available" | "Limited Inventory" | "Sold Out" | "Hidden" | "Archived"
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  siteVisits           SiteVisit[]
+  siteVisitSlots       SiteVisitSlot[]
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  budget    String
+  city      String
+  purpose   String
+  status    String   // "New" | "Contacted" | "Qualified" | "Lost"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  siteVisits SiteVisit[]
+}
+
+model HomepageSection {
+  id          String   @id @default(cuid())
+  sectionId   String
+  title       String
+  subtitle    String
+  description String
+  ctaText     String
+  ctaLink     String
+  isVisible   Boolean  @default(true)
+  sortOrder   Int
+  theme       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id                String   @id @default(cuid())
+  name              String
+  designation       String
+  company           String
+  city              String
+  investorType      String
+  rating            Int
+  testimonial       String
+  imageUrl          String?
+  propertyPurchased String?
+  purchaseYear      Int?
+  isVerified        Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  sortOrder         Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model SocialLink {
+  id          String   @id @default(cuid())
+  platform    String
+  url         String
+  displayName String
+  icon        String
+  isVisible   Boolean  @default(true)
+  sortOrder   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CompanySetting {
+  id           String   @id @default(cuid())
+  settingKey   String   @unique
+  settingValue String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ContactSetting {
+  id             String   @id @default(cuid())
+  whatsappNumber String
+  phoneNumber    String
+  email          String
+  officeAddress  String
+  googleMapsUrl  String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model MapSetting {
+  id          String   @id @default(cuid())
+  defaultLat  Float
+  defaultLng  Float
+  defaultZoom Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SiteVisitSlot {
+  id          String   @id @default(cuid())
+  propertyId  String
+  dayOfWeek   Int?
+  date        String?
+  time        String
+  maxVisitors Int
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model SiteVisit {
+  id               String   @id @default(cuid())
+  leadId           String
+  propertyId       String
+  date             String
+  time             String
+  numberOfVisitors Int
+  status           String   // BookingStatus
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  lead             Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  timeline         BookingTimeline[]
+}
+
+model SalesTarget {
+  id               String   @id @default(cuid())
+  period           String   // SalesPeriod
+  startDate        DateTime
+  endDate          DateTime
+  targetRevenue    Float
+  targetBookings   Int
+  targetVisits     Int
+  achievedRevenue  Float    @default(0)
+  achievedBookings Int      @default(0)
+  achievedVisits   Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model BookingTimeline {
+  id          String   @id @default(cuid())
+  bookingId   String
+  action      String   // TimelineAction
+  description String
+  timestamp   DateTime @default(now())
+
+  booking     SiteVisit @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  recipientId String
+  type        String
+  subject     String?
+  message     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}

@@ -294,3 +294,140 @@ export class MockSettingsRepository implements ISettingsRepository {
     return this.socialLinks.length !== len;
   }
 }
+
+import { ISiteVisitRepository, ISiteVisitSlotRepository, ISalesTargetRepository, IBookingTimelineRepository, INotificationRepository } from "../../core/ports";
+import { SiteVisit, SiteVisitSlot, SalesTarget, BookingTimeline, Notification } from "../../core/domain/types";
+
+export class MockSiteVisitRepository implements ISiteVisitRepository {
+  private visits: SiteVisit[] = [];
+
+  async findById(id: string): Promise<SiteVisit | null> {
+    return this.visits.find(v => v.id === id) || null;
+  }
+
+  async findAll(filters?: { propertyId?: string; date?: string; status?: SiteVisit["status"] }): Promise<SiteVisit[]> {
+    let result = this.visits;
+    if (filters?.propertyId) result = result.filter(v => v.propertyId === filters.propertyId);
+    if (filters?.date) result = result.filter(v => v.date === filters.date);
+    if (filters?.status) result = result.filter(v => v.status === filters.status);
+    return result;
+  }
+
+  async create(visit: Omit<SiteVisit, "id" | "createdAt" | "updatedAt">): Promise<SiteVisit> {
+    const newV: SiteVisit = { ...visit, id: Math.random().toString(36).substring(2, 9), createdAt: new Date(), updatedAt: new Date() };
+    this.visits.push(newV);
+    return newV;
+  }
+
+  async updateStatus(id: string, status: SiteVisit["status"]): Promise<SiteVisit> {
+    const idx = this.visits.findIndex(v => v.id === id);
+    if (idx === -1) throw new Error("SiteVisit not found");
+    this.visits[idx] = { ...this.visits[idx], status, updatedAt: new Date() };
+    return this.visits[idx];
+  }
+}
+
+export class MockSiteVisitSlotRepository implements ISiteVisitSlotRepository {
+  private slots: SiteVisitSlot[] = [];
+
+  async findByPropertyId(propertyId: string): Promise<SiteVisitSlot[]> {
+    return this.slots.filter(s => s.propertyId === propertyId);
+  }
+
+  async create(slot: Omit<SiteVisitSlot, "id" | "createdAt" | "updatedAt">): Promise<SiteVisitSlot> {
+    const newS: SiteVisitSlot = { ...slot, id: Math.random().toString(36).substring(2, 9), createdAt: new Date(), updatedAt: new Date() };
+    this.slots.push(newS);
+    return newS;
+  }
+
+  async update(id: string, slot: Partial<SiteVisitSlot>): Promise<SiteVisitSlot> {
+    const idx = this.slots.findIndex(s => s.id === id);
+    if (idx === -1) throw new Error("Slot not found");
+    this.slots[idx] = { ...this.slots[idx], ...slot, updatedAt: new Date() };
+    return this.slots[idx];
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const len = this.slots.length;
+    this.slots = this.slots.filter(s => s.id !== id);
+    return this.slots.length !== len;
+  }
+}
+
+export class MockSalesTargetRepository implements ISalesTargetRepository {
+  private targets: SalesTarget[] = [
+    {
+      id: "tgt-1",
+      period: "Monthly",
+      startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+      targetRevenue: 50000000,
+      targetBookings: 10,
+      targetVisits: 50,
+      achievedRevenue: 12500000,
+      achievedBookings: 2,
+      achievedVisits: 14,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ];
+
+  async getCurrentTarget(): Promise<SalesTarget | null> {
+    return this.targets.length > 0 ? this.targets[0] : null;
+  }
+
+  async findAll(): Promise<SalesTarget[]> {
+    return this.targets;
+  }
+
+  async create(target: Omit<SalesTarget, "id" | "createdAt" | "updatedAt">): Promise<SalesTarget> {
+    const newT: SalesTarget = { ...target, id: Math.random().toString(36).substring(2, 9), createdAt: new Date(), updatedAt: new Date() };
+    this.targets.push(newT);
+    return newT;
+  }
+
+  async update(id: string, target: Partial<SalesTarget>): Promise<SalesTarget> {
+    const idx = this.targets.findIndex(t => t.id === id);
+    if (idx === -1) throw new Error("Target not found");
+    this.targets[idx] = { ...this.targets[idx], ...target, updatedAt: new Date() };
+    return this.targets[idx];
+  }
+}
+
+export class MockBookingTimelineRepository implements IBookingTimelineRepository {
+  private events: BookingTimeline[] = [];
+
+  async findByBookingId(bookingId: string): Promise<BookingTimeline[]> {
+    return this.events.filter(e => e.bookingId === bookingId).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  }
+
+  async create(entry: Omit<BookingTimeline, "id">): Promise<BookingTimeline> {
+    const newE: BookingTimeline = { ...entry, id: Math.random().toString(36).substring(2, 9) };
+    this.events.push(newE);
+    return newE;
+  }
+}
+
+export class MockNotificationRepository implements INotificationRepository {
+  private notifications: Notification[] = [];
+
+  async findAll(filters?: { recipientId?: string; isRead?: boolean }): Promise<Notification[]> {
+    let result = this.notifications;
+    if (filters?.recipientId) result = result.filter(n => n.recipientId === filters.recipientId);
+    if (filters?.isRead !== undefined) result = result.filter(n => n.isRead === filters.isRead);
+    return result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async create(notification: Omit<Notification, "id" | "createdAt" | "isRead">): Promise<Notification> {
+    const newN: Notification = { ...notification, id: Math.random().toString(36).substring(2, 9), createdAt: new Date(), isRead: false };
+    this.notifications.push(newN);
+    return newN;
+  }
+
+  async markAsRead(id: string): Promise<Notification> {
+    const idx = this.notifications.findIndex(n => n.id === id);
+    if (idx === -1) throw new Error("Notification not found");
+    this.notifications[idx] = { ...this.notifications[idx], isRead: true };
+    return this.notifications[idx];
+  }
+}

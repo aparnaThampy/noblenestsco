@@ -16,6 +16,8 @@ export default function NewPropertyPage() {
     
     try {
       await container.propertyService.addProperty(data as Omit<Property, "id" | "createdAt" | "updatedAt">);
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/", "layout");
     } catch (e: unknown) {
       throw new Error(e instanceof Error ? e.message : "Failed to create property");
     }

@@ -14,7 +14,10 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
   const { slug } = await params
   
   const propertyService = container.propertyService;
-  const property = await propertyService.getPropertyBySlug(slug);
+  const [property, contactSettings] = await Promise.all([
+    propertyService.getPropertyBySlug(slug),
+    container.settingsService.getContactSettings()
+  ]);
 
   if (!property) {
     return (
@@ -32,6 +35,8 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
   const primaryImage = property.images?.find(img => img.isPrimary)?.url || property.images?.[0]?.url || "";
   const secondaryImage = property.images?.[1]?.url || primaryImage;
   const tertiaryImage = property.images?.[2]?.url || primaryImage;
+  
+  const whatsappContact = property.contact?.whatsapp || contactSettings?.whatsappNumber?.replace(/[^0-9]/g, "");
 
   return (
     <div className="bg-background min-h-screen">
@@ -165,16 +170,34 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
                 
                 {/* Google Maps Embed */}
                 {property.location.coordinates?.lat && property.location.coordinates?.lng && (
-                  <div className="w-full h-64 border-t border-border">
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      style={{ border: 0 }} 
-                      loading="lazy" 
-                      allowFullScreen 
-                      referrerPolicy="no-referrer-when-downgrade" 
-                      src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&q=${property.location.coordinates.lat},${property.location.coordinates.lng}&zoom=14`}
-                    ></iframe>
+                  <div className="w-full h-64 border-t border-border bg-black/50 flex flex-col items-center justify-center relative">
+                    {process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? (
+                      <iframe 
+                        width="100%" 
+                        height="100%" 
+                        style={{ border: 0 }} 
+                        loading="lazy" 
+                        allowFullScreen 
+                        referrerPolicy="no-referrer-when-downgrade" 
+                        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${property.location.coordinates.lat},${property.location.coordinates.lng}&zoom=14`}
+                      ></iframe>
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-white/50 space-y-3 p-4 text-center">
+                        <MapPin className="w-8 h-8 text-white/30" />
+                        <div>
+                          <p className="font-medium text-white/70">Map View Unavailable</p>
+                          <p className="text-sm">Please open in Google Maps to view the exact location.</p>
+                        </div>
+                        <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${property.location.coordinates.lat},${property.location.coordinates.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 text-primary hover:text-primary/80 text-sm font-medium"
+                        >
+                          Open in Google Maps
+                        </a>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -192,13 +215,15 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
               </div>
               
               <div className="p-8 space-y-4">
-                <Button className="w-full h-14 text-base flex items-center justify-center gap-2" size="lg">
-                  <Calendar className="w-5 h-5" /> Book a Site Visit
-                </Button>
+                <Link href={getBrandPath(`/properties/${property.slug}/book-site-visit`)} className="block w-full">
+                  <Button className="w-full h-14 text-base flex items-center justify-center gap-2" size="lg">
+                    <Calendar className="w-5 h-5" /> Book a Site Visit
+                  </Button>
+                </Link>
                 
-                {property.contact?.whatsapp && (
+                {whatsappContact && (
                   <a 
-                    href={`https://wa.me/${property.contact.whatsapp}?text=Hello Noble Nests Co,%0aI am interested in:%0aProperty: ${property.title}%0aLocation: ${property.location.address}%0aPlease arrange a consultation.`}
+                    href={`https://wa.me/${whatsappContact}?text=Hello Noble Nests Co,%0aI am interested in:%0aProperty: ${property.title}%0aLocation: ${property.location.address}%0aPlease arrange a consultation.`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block w-full"

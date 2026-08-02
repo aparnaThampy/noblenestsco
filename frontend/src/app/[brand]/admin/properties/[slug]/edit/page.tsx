@@ -20,6 +20,8 @@ export default async function EditPropertyPage({ params }: { params: Promise<{ s
     
     try {
       await container.propertyService.updateProperty(property.id, data);
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/", "layout");
     } catch (e: unknown) {
       throw new Error(e instanceof Error ? e.message : "Failed to update property");
     }

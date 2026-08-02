@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { TestimonialForm } from "@/components/admin/testimonial-form";
 import { useRouter } from "next/navigation";
+import { Testimonial } from "@/backend/core/domain/types";
 
-export function TestimonialsManager({ brand, initialTestimonials }: { brand: string, initialTestimonials: any[] }) {
+export function TestimonialsManager({ brand, initialTestimonials }: { brand: string, initialTestimonials: Testimonial[] }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editingTestimonial, setEditingTestimonial] = useState<any>(null);
+  const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const router = useRouter();
 
   const handleAdd = () => {
@@ -14,7 +15,7 @@ export function TestimonialsManager({ brand, initialTestimonials }: { brand: str
     setIsEditing(true);
   };
 
-  const handleEdit = (testimonial: any) => {
+  const handleEdit = (testimonial: Testimonial) => {
     setEditingTestimonial(testimonial);
     setIsEditing(true);
   };
@@ -53,7 +54,7 @@ export function TestimonialsManager({ brand, initialTestimonials }: { brand: str
         </h2>
         <TestimonialForm 
           brand={brand} 
-          initialData={editingTestimonial} 
+          initialData={editingTestimonial as unknown as Parameters<typeof TestimonialForm>[0]["initialData"]} 
           onSuccess={handleSuccess} 
           onCancel={handleCancel} 
         />

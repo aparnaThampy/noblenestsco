@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { deletePropertyAction, toggleFeatureAction, togglePublishAction } from "@/app/[brand]/admin/properties/actions";
 
 export interface PropertyActionsProps {
   propertySlug: string;
@@ -20,13 +21,8 @@ export function PropertyActions({ propertySlug, isFeatured, status }: PropertyAc
     
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/properties/${propertySlug}`, {
-        method: "DELETE",
-        // In a real app we'd pass the auth token here
-        headers: { "x-api-key": "noble-nests-admin-secret" } 
-      });
-      
-      if (!res.ok) throw new Error("Failed to delete");
+      const res = await deletePropertyAction(propertySlug);
+      if (!res.success) throw new Error(res.error || "Failed to delete");
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -38,15 +34,8 @@ export function PropertyActions({ propertySlug, isFeatured, status }: PropertyAc
 
   const toggleFeature = async () => {
     try {
-      const res = await fetch(`/api/properties/${propertySlug}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "noble-nests-admin-secret"
-        },
-        body: JSON.stringify({ isFeatured: !isFeatured })
-      });
-      if (!res.ok) throw new Error("Failed to update feature status");
+      const res = await toggleFeatureAction(propertySlug, !isFeatured);
+      if (!res.success) throw new Error(res.error || "Failed to update feature status");
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -56,15 +45,8 @@ export function PropertyActions({ propertySlug, isFeatured, status }: PropertyAc
 
   const togglePublish = async () => {
     try {
-      const res = await fetch(`/api/properties/${propertySlug}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "noble-nests-admin-secret"
-        },
-        body: JSON.stringify({ status: status === "Published" ? "Draft" : "Published" })
-      });
-      if (!res.ok) throw new Error("Failed to update status");
+      const res = await togglePublishAction(propertySlug, status);
+      if (!res.success) throw new Error(res.error || "Failed to update status");
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -74,6 +56,12 @@ export function PropertyActions({ propertySlug, isFeatured, status }: PropertyAc
 
   return (
     <div className="flex items-center space-x-2">
+      <Link href={`/properties/${propertySlug}`} target="_blank">
+        <Button variant="outline" size="sm" className="h-8 text-xs bg-white/5 border-white/10 hover:bg-white/10 text-white">
+          View
+        </Button>
+      </Link>
+      
       <Link href={`/admin/properties/${propertySlug}/edit`}>
         <Button variant="outline" size="sm" className="h-8 text-xs bg-white/5 border-white/10 hover:bg-white/10 text-white">
           Edit

@@ -28,6 +28,7 @@ export function PropertyForm({ initialData, onSubmitAction }: PropertyFormProps)
       slug: "",
       type: "Luxury Villa",
       status: "Draft",
+      availability: "Available",
       builder: "",
       price: "",
       description: "",
@@ -163,6 +164,16 @@ export function PropertyForm({ initialData, onSubmitAction }: PropertyFormProps)
                   <option value="Draft" className="bg-zinc-900 text-white">Draft</option>
                   <option value="Published" className="bg-zinc-900 text-white">Published</option>
                   <option value="Sold" className="bg-zinc-900 text-white">Sold</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/80">Availability</label>
+                <select {...register("availability")} className="flex h-10 w-full rounded-md border border-white/10 bg-transparent px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500">
+                  <option value="Available" className="bg-zinc-900 text-white">Available</option>
+                  <option value="Limited Inventory" className="bg-zinc-900 text-white">Limited Inventory</option>
+                  <option value="Sold Out" className="bg-zinc-900 text-white">Sold Out</option>
+                  <option value="Hidden" className="bg-zinc-900 text-white">Hidden</option>
+                  <option value="Archived" className="bg-zinc-900 text-white">Archived</option>
                 </select>
               </div>
               <div className="space-y-2">

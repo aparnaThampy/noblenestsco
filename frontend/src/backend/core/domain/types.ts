@@ -69,6 +69,7 @@ export interface Property {
   updatedAt: Date;
   /** Denormalised for convenient filtering without joining location */
   city: string;
+  availability?: "Available" | "Limited Inventory" | "Sold Out" | "Hidden" | "Archived";
 }
 
 export interface Lead {
@@ -156,4 +157,70 @@ export interface MapSetting {
   defaultZoom: number;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+// ─── CRM Entities ─────────────────────────────────────────────────────────────
+
+export interface SiteVisitSlot {
+  id: string;
+  propertyId: string;
+  dayOfWeek?: number; // 0-6 (Sunday-Saturday)
+  date?: string; // YYYY-MM-DD for specific overrides
+  time: string; // HH:mm
+  maxVisitors: number;
+  isAvailable: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export type BookingStatus = "Pending" | "Confirmed" | "Completed" | "Cancelled" | "Rescheduled";
+
+export interface SiteVisit {
+  id: string;
+  leadId: string;
+  propertyId: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:mm
+  numberOfVisitors: number;
+  status: BookingStatus;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SalesPeriod = "Monthly" | "Quarterly" | "Yearly";
+
+export interface SalesTarget {
+  id: string;
+  period: SalesPeriod;
+  startDate: Date;
+  endDate: Date;
+  targetRevenue: number;
+  targetBookings: number;
+  targetVisits: number;
+  achievedRevenue: number;
+  achievedBookings: number;
+  achievedVisits: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export type TimelineAction = "Created" | "StatusChanged" | "NoteAdded" | "NotificationSent" | "Rescheduled";
+
+export interface BookingTimeline {
+  id: string;
+  bookingId: string;
+  action: TimelineAction;
+  description: string;
+  timestamp: Date;
+}
+
+export interface Notification {
+  id: string;
+  recipientId: string; // Could be leadId or 'admin'
+  type: "Email" | "WhatsApp" | "SMS" | "Dashboard";
+  subject?: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
 }

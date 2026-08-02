@@ -14,10 +14,11 @@ export const metadata = {
 }
 
 export default async function HomePage() {
-  const [contactSettings, properties, testimonials] = await Promise.all([
+  const [contactSettings, properties, testimonials, homepageSections] = await Promise.all([
     container.settingsService.getContactSettings(),
     container.propertyService.getAllProperties({ status: "active" }),
-    container.testimonialService.getAllTestimonials({ isActive: true })
+    container.testimonialService.getAllTestimonials({ isActive: true }),
+    container.homepageService.getAllSections()
   ]);
   
   const whatsappNumber = contactSettings?.whatsappNumber?.replace(/[^0-9]/g, "");
@@ -33,15 +34,17 @@ export default async function HomePage() {
 
   const activeLocations = Array.from(citiesMap.keys());
 
+  const getSection = (id: string) => homepageSections.find(s => s.sectionId === id);
+
   return (
     <>
-      <HeroSection whatsappUrl={whatsappUrl} />
-      <MarketInsights />
-      <WhyChooseUs />
-      <FeaturedProperties />
-      <FeaturedLocations locations={activeLocations} />
-      <Testimonials testimonials={testimonials} />
-      <HomeCTA />
+      <HeroSection whatsappUrl={whatsappUrl} sectionData={getSection("hero")} />
+      <MarketInsights sectionData={getSection("market-insights")} />
+      <WhyChooseUs sectionData={getSection("why-choose-us")} />
+      <FeaturedProperties sectionData={getSection("featured-properties")} />
+      <FeaturedLocations locations={activeLocations} sectionData={getSection("featured-locations")} />
+      <Testimonials testimonials={testimonials} sectionData={getSection("testimonials")} />
+      <HomeCTA sectionData={getSection("home-cta")} />
     </>
   )
 }

@@ -3,6 +3,7 @@
 import * as React from "react"
 import { motion } from "framer-motion"
 import { MapPin, TrendingUp, ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 const ALL_LOCATIONS = [
   {
@@ -39,11 +40,19 @@ const ALL_LOCATIONS = [
   }
 ]
 
+import { HomepageSection } from "@/backend/core/domain/types"
+
 interface FeaturedLocationsProps {
   locations?: string[]; // Dynamic active cities
+  sectionData?: HomepageSection;
 }
 
-export function FeaturedLocations({ locations = [] }: FeaturedLocationsProps) {
+export function FeaturedLocations({ locations = [], sectionData }: FeaturedLocationsProps) {
+  if (sectionData && !sectionData.isVisible) return null;
+
+  const title = sectionData?.title || "Prime Investment Hubs";
+  const description = sectionData?.description || "We focus on macro-markets backed by strong infrastructure growth, corporate expansion, and demographic shifts.";
+
   // If we have dynamic locations, filter our rich list to match them.
   // Otherwise default to empty or maybe a fallback.
   const displayLocations = ALL_LOCATIONS.filter(loc => 
@@ -72,10 +81,10 @@ export function FeaturedLocations({ locations = [] }: FeaturedLocationsProps) {
       <div className="container mx-auto px-4 md:px-8">
         <div className="text-center mb-16 max-w-3xl mx-auto">
           <h2 className="font-heading text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white">
-            Prime Investment Hubs
+            {title}
           </h2>
           <p className="text-muted-foreground text-lg">
-            We focus on macro-markets backed by strong infrastructure growth, corporate expansion, and demographic shifts.
+            {description}
           </p>
         </div>
 
@@ -127,10 +136,10 @@ export function FeaturedLocations({ locations = [] }: FeaturedLocationsProps) {
                     <span className="text-primary">Key Areas: </span>
                     {location.popularAreas.join(", ")}
                   </div>
-                  <button className="flex items-center gap-2 text-white hover:text-primary transition-colors uppercase tracking-widest text-sm font-semibold group/btn">
+                  <Link href={`/noblenestsco/properties?city=${encodeURIComponent(location.city)}`} className="flex items-center gap-2 text-white hover:text-primary transition-colors uppercase tracking-widest text-sm font-semibold group/btn">
                     Explore 
                     <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" />
-                  </button>
+                  </Link>
                 </div>
               </div>
             </motion.div>

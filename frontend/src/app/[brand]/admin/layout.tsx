@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { LayoutDashboard, Users, Building, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Building, Settings, LogOut, Calendar } from "lucide-react";
 import { getBrandPath } from "@/lib/config/brands";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { name: "CRM / Site Visits", href: "/admin/crm", icon: Calendar },
     { name: "Leads", href: "/admin/leads", icon: Users },
     { name: "Properties", href: "/admin/properties", icon: Building },
     { name: "Testimonials", href: "/admin/testimonials", icon: Users },

@@ -3,7 +3,7 @@ import { Property, Lead } from "../domain/types";
 export interface IPropertyRepository {
   findById(id: string): Promise<Property | null>;
   findBySlug(slug: string): Promise<Property | null>;
-  findAll(filters?: { city?: string; budget?: string; isFeatured?: boolean }): Promise<Property[]>;
+  findAll(filters?: { city?: string; budget?: string; isFeatured?: boolean; status?: Property["status"] }): Promise<Property[]>;
   create(property: Omit<Property, "id" | "createdAt" | "updatedAt">): Promise<Property>;
   update(id: string, property: Partial<Property>): Promise<Property>;
   delete(id: string): Promise<boolean>;
@@ -53,3 +53,36 @@ export interface ISettingsRepository {
   deleteSocialLink(id: string): Promise<boolean>;
 }
 
+import { SiteVisit, SiteVisitSlot, SalesTarget, BookingTimeline, Notification } from "../domain/types";
+
+export interface ISiteVisitRepository {
+  findById(id: string): Promise<SiteVisit | null>;
+  findAll(filters?: { propertyId?: string; date?: string; status?: SiteVisit["status"] }): Promise<SiteVisit[]>;
+  create(visit: Omit<SiteVisit, "id" | "createdAt" | "updatedAt">): Promise<SiteVisit>;
+  updateStatus(id: string, status: SiteVisit["status"]): Promise<SiteVisit>;
+}
+
+export interface ISiteVisitSlotRepository {
+  findByPropertyId(propertyId: string): Promise<SiteVisitSlot[]>;
+  create(slot: Omit<SiteVisitSlot, "id" | "createdAt" | "updatedAt">): Promise<SiteVisitSlot>;
+  update(id: string, slot: Partial<SiteVisitSlot>): Promise<SiteVisitSlot>;
+  delete(id: string): Promise<boolean>;
+}
+
+export interface ISalesTargetRepository {
+  getCurrentTarget(): Promise<SalesTarget | null>;
+  findAll(): Promise<SalesTarget[]>;
+  create(target: Omit<SalesTarget, "id" | "createdAt" | "updatedAt">): Promise<SalesTarget>;
+  update(id: string, target: Partial<SalesTarget>): Promise<SalesTarget>;
+}
+
+export interface IBookingTimelineRepository {
+  findByBookingId(bookingId: string): Promise<BookingTimeline[]>;
+  create(entry: Omit<BookingTimeline, "id">): Promise<BookingTimeline>;
+}
+
+export interface INotificationRepository {
+  findAll(filters?: { recipientId?: string; isRead?: boolean }): Promise<Notification[]>;
+  create(notification: Omit<Notification, "id" | "createdAt" | "isRead">): Promise<Notification>;
+  markAsRead(id: string): Promise<Notification>;
+}

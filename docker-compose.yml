@@ -53,6 +53,27 @@ services:
       timeout: 5s
       retries: 3
 
+  # ─── PostgreSQL Database ──────────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: noble-nests-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=noblenestsco
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - noble-nests-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ─── Nginx Reverse Proxy ──────────────────────────────────────────────────
   nginx:
     image: nginx:alpine
@@ -77,6 +98,8 @@ services:
 
 volumes:
   redis-data:
+    driver: local
+  postgres-data:
     driver: local
   nginx-cache:
     driver: local

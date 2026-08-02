@@ -12,7 +12,7 @@ export class HomepageService {
     return this.homepageSectionRepository.findById(id);
   }
 
-  async addSection(section: Omit<HomepageSection, "id">): Promise<HomepageSection> {
+  async createSection(section: Omit<HomepageSection, "id">): Promise<HomepageSection> {
     return this.homepageSectionRepository.create(section);
   }
 
@@ -20,7 +20,7 @@ export class HomepageService {
     return this.homepageSectionRepository.update(id, section);
   }
 
-  async removeSection(id: string): Promise<boolean> {
+  async deleteSection(id: string): Promise<boolean> {
     return this.homepageSectionRepository.delete(id);
   }
 }

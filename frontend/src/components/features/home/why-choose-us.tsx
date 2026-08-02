@@ -37,16 +37,27 @@ const REASONS = [
   }
 ]
 
-export function WhyChooseUs() {
+import { HomepageSection } from "@/backend/core/domain/types"
+
+interface WhyChooseUsProps {
+  sectionData?: HomepageSection;
+}
+
+export function WhyChooseUs({ sectionData }: WhyChooseUsProps) {
+  if (sectionData && !sectionData.isVisible) return null;
+
+  const title = sectionData?.title || "Why Noble Nests";
+  const description = sectionData?.description || "We are not just a marketplace. We are your premium investment advisory partner, committed to high-growth, secure wealth creation.";
+
   return (
     <section className="py-24 bg-background">
       <div className="container mx-auto px-4 md:px-8">
         <div className="text-center mb-16 max-w-3xl mx-auto">
           <h2 className="font-heading text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white">
-            Why Noble Nests
+            {title}
           </h2>
           <p className="text-muted-foreground text-lg">
-            We are not just a marketplace. We are your premium investment advisory partner, committed to high-growth, secure wealth creation.
+            {description}
           </p>
         </div>
 

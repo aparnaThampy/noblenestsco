@@ -6,7 +6,20 @@ import { getBrandPath } from "@/lib/config/brands"
 import { container } from "@/backend/di/container"
 import Link from "next/link"
 
-export async function FeaturedProperties() {
+import { HomepageSection } from "@/backend/core/domain/types"
+
+interface FeaturedPropertiesProps {
+  sectionData?: HomepageSection;
+}
+
+export async function FeaturedProperties({ sectionData }: FeaturedPropertiesProps) {
+  if (sectionData && !sectionData.isVisible) return null;
+
+  const title = sectionData?.title || "Curated For You";
+  const subtitle = sectionData?.subtitle || "Investment Opportunities";
+  const ctaText = sectionData?.ctaText || "View All Properties";
+  const ctaLink = sectionData?.ctaLink || "/properties";
+
   const propertyService = container.propertyService;
   const properties = await propertyService.getAllProperties({ isFeatured: true });
   const propertyCards = properties.map(mapPropertyToCardProps);
@@ -16,12 +29,12 @@ export async function FeaturedProperties() {
       <div className="container mx-auto px-4 md:px-8">
         <div className="flex justify-between items-end mb-12">
           <div>
-            <p className="text-primary font-semibold uppercase tracking-[0.3em] text-sm mb-4">Investment Opportunities</p>
-            <h2 className="font-heading text-3xl md:text-5xl font-bold text-white">Curated For You</h2>
+            <p className="text-primary font-semibold uppercase tracking-[0.3em] text-sm mb-4">{subtitle}</p>
+            <h2 className="font-heading text-3xl md:text-5xl font-bold text-white">{title}</h2>
           </div>
-          <Link href={getBrandPath("/properties")} passHref>
+          <Link href={getBrandPath(ctaLink)} passHref>
             <Button variant="outline" className="hidden md:flex gap-2">
-              View All Properties <ArrowRight className="w-4 h-4" />
+              {ctaText} <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
         </div>

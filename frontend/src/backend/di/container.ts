@@ -8,7 +8,18 @@
  * Architecture: Hexagonal / Ports & Adapters
  */
 
-import { MockPropertyRepository, MockLeadRepository, MockHomepageSectionRepository, MockTestimonialRepository, MockSettingsRepository } from "../infrastructure/persistence/mock-repositories";
+import { 
+  PrismaPropertyRepository, 
+  PrismaLeadRepository, 
+  PrismaHomepageSectionRepository, 
+  PrismaTestimonialRepository, 
+  PrismaSettingsRepository, 
+  PrismaSiteVisitRepository, 
+  PrismaSiteVisitSlotRepository, 
+  PrismaBookingTimelineRepository, 
+  PrismaNotificationRepository, 
+  PrismaSalesTargetRepository 
+} from "../infrastructure/persistence/prisma/repositories";
 import { LocalStorageProvider } from "../infrastructure/storage/local-storage";
 import { R2StorageProvider } from "../infrastructure/storage/r2-storage";
 import { PropertyService } from "../application/services/property-service";
@@ -16,7 +27,8 @@ import { LeadService } from "../application/services/lead-service";
 import { HomepageService } from "../application/services/homepage-service";
 import { TestimonialService } from "../application/services/testimonial-service";
 import { SettingsService } from "../application/services/settings-service";
-import { IPropertyRepository, ILeadRepository, IStorageProvider, IHomepageSectionRepository, ITestimonialRepository, ISettingsRepository } from "../core/ports";
+import { CRMService } from "../application/services/crm-service";
+import { IPropertyRepository, ILeadRepository, IStorageProvider, IHomepageSectionRepository, ITestimonialRepository, ISettingsRepository, ISiteVisitRepository, ISiteVisitSlotRepository, IBookingTimelineRepository, INotificationRepository, ISalesTargetRepository } from "../core/ports";
 
 // ─── Storage Provider Factory ─────────────────────────────────────────────────
 // To use R2 in production: set STORAGE_PROVIDER=cloudflare-r2 in .env
@@ -33,26 +45,45 @@ function createStorageProvider(): IStorageProvider {
 }
 
 // ─── Repository Factory ───────────────────────────────────────────────────────
-// To use a real DB: swap MockPropertyRepository → PostgresPropertyRepository
-// The service layer never needs to change.
+// Uses Prisma PostgreSQL Repositories
 function createPropertyRepository(): IPropertyRepository {
-  return new MockPropertyRepository();
+  return new PrismaPropertyRepository();
 }
 
 function createLeadRepository(): ILeadRepository {
-  return new MockLeadRepository();
+  return new PrismaLeadRepository();
 }
 
 function createHomepageSectionRepository(): IHomepageSectionRepository {
-  return new MockHomepageSectionRepository();
+  return new PrismaHomepageSectionRepository();
 }
 
 function createTestimonialRepository(): ITestimonialRepository {
-  return new MockTestimonialRepository();
+  return new PrismaTestimonialRepository();
 }
 
 function createSettingsRepository(): ISettingsRepository {
-  return new MockSettingsRepository();
+  return new PrismaSettingsRepository();
+}
+
+function createSiteVisitRepository(): ISiteVisitRepository {
+  return new PrismaSiteVisitRepository();
+}
+
+function createSiteVisitSlotRepository(): ISiteVisitSlotRepository {
+  return new PrismaSiteVisitSlotRepository();
+}
+
+function createBookingTimelineRepository(): IBookingTimelineRepository {
+  return new PrismaBookingTimelineRepository();
+}
+
+function createNotificationRepository(): INotificationRepository {
+  return new PrismaNotificationRepository();
+}
+
+function createSalesTargetRepository(): ISalesTargetRepository {
+  return new PrismaSalesTargetRepository();
 }
 
 // ─── Container ────────────────────────────────────────────────────────────────
@@ -66,11 +97,18 @@ class Container {
   readonly testimonialRepo: ITestimonialRepository;
   readonly settingsRepo: ISettingsRepository;
   
+  readonly siteVisitRepo: ISiteVisitRepository;
+  readonly slotRepo: ISiteVisitSlotRepository;
+  readonly timelineRepo: IBookingTimelineRepository;
+  readonly notificationRepo: INotificationRepository;
+  readonly salesTargetRepo: ISalesTargetRepository;
+  
   readonly propertyService: PropertyService;
   readonly leadService: LeadService;
   readonly homepageService: HomepageService;
   readonly testimonialService: TestimonialService;
   readonly settingsService: SettingsService;
+  readonly crmService: CRMService;
 
   private constructor() {
     this.storageProvider = createStorageProvider();
@@ -81,11 +119,26 @@ class Container {
     this.testimonialRepo = createTestimonialRepository();
     this.settingsRepo = createSettingsRepository();
     
+    this.siteVisitRepo = createSiteVisitRepository();
+    this.slotRepo = createSiteVisitSlotRepository();
+    this.timelineRepo = createBookingTimelineRepository();
+    this.notificationRepo = createNotificationRepository();
+    this.salesTargetRepo = createSalesTargetRepository();
+    
     this.propertyService = new PropertyService(this.propertyRepo, this.storageProvider);
     this.leadService = new LeadService(this.leadRepo);
     this.homepageService = new HomepageService(this.homepageSectionRepo);
     this.testimonialService = new TestimonialService(this.testimonialRepo);
     this.settingsService = new SettingsService(this.settingsRepo);
+    
+    this.crmService = new CRMService(
+      this.siteVisitRepo,
+      this.slotRepo,
+      this.leadRepo,
+      this.timelineRepo,
+      this.notificationRepo,
+      this.salesTargetRepo
+    );
   }
 
   static getInstance(): Container {

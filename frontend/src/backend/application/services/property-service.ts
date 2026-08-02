@@ -7,8 +7,8 @@ export class PropertyService {
     private storageProvider: IStorageProvider
   ) {}
 
-  async getAllProperties(filters?: { city?: string; budget?: string; isFeatured?: boolean }): Promise<Property[]> {
-    return this.propertyRepo.findAll(filters);
+  async getAllProperties(filters?: { city?: string; budget?: string; isFeatured?: boolean; status?: string }): Promise<Property[]> {
+    return this.propertyRepo.findAll(filters as Record<string, unknown>);
   }
 
   async getPropertyBySlug(slug: string): Promise<Property | null> {

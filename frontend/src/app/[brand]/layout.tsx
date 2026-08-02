@@ -2,6 +2,7 @@ import { Navbar } from "@/components/shared/navbar";
 import { Footer } from "@/components/shared/footer";
 import { notFound } from "next/navigation";
 import { BRANDS } from "@/lib/config/brands";
+import { FloatingSocialIcons } from "@/components/shared/floating-social-icons";
 
 export default async function BrandLayout({
   children,
@@ -26,6 +27,7 @@ export default async function BrandLayout({
       <Navbar />
       {children}
       <Footer />
+      <FloatingSocialIcons />
     </>
   );
 }

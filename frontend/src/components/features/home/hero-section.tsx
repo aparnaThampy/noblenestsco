@@ -6,11 +6,21 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { getBrandPath } from "@/lib/config/brands"
 
+import { HomepageSection } from "@/backend/core/domain/types"
+
 interface HeroSectionProps {
   whatsappUrl?: string;
+  sectionData?: HomepageSection;
 }
 
-export function HeroSection({ whatsappUrl }: HeroSectionProps) {
+export function HeroSection({ whatsappUrl, sectionData }: HeroSectionProps) {
+  if (sectionData && !sectionData.isVisible) return null;
+
+  const title = sectionData?.title || "Curated Investment Opportunities for Those Who Think Long Term.";
+  const description = sectionData?.description || "We help investors acquire verified premium properties with exceptional growth potential.";
+  const ctaText = sectionData?.ctaText || "Explore Investments";
+  const ctaLink = sectionData?.ctaLink || "/properties";
+
   return (
     <section className="relative h-[90vh] w-full flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -29,16 +39,16 @@ export function HeroSection({ whatsappUrl }: HeroSectionProps) {
           className="max-w-4xl mx-auto"
         >
           <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
-            Curated Investment Opportunities for Those Who Think Long Term.
+            {title}
           </h1>
           <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-            We help investors acquire verified premium properties with exceptional growth potential.
+            {description}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href={getBrandPath("/properties")} className="w-full sm:w-auto">
+            <Link href={getBrandPath(ctaLink)} className="w-full sm:w-auto">
               <Button size="lg" className="w-full">
-                Explore Investments
+                {ctaText}
               </Button>
             </Link>
             

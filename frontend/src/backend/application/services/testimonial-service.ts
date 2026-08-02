@@ -12,7 +12,7 @@ export class TestimonialService {
     return this.testimonialRepository.findById(id);
   }
 
-  async addTestimonial(testimonial: Omit<Testimonial, "id">): Promise<Testimonial> {
+  async createTestimonial(testimonial: Omit<Testimonial, "id">): Promise<Testimonial> {
     return this.testimonialRepository.create(testimonial);
   }
 
@@ -20,7 +20,7 @@ export class TestimonialService {
     return this.testimonialRepository.update(id, testimonial);
   }
 
-  async removeTestimonial(id: string): Promise<boolean> {
+  async deleteTestimonial(id: string): Promise<boolean> {
     return this.testimonialRepository.delete(id);
   }
 }

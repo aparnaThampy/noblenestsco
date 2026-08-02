@@ -32,7 +32,18 @@ const MARKET_TRENDS = [
   },
 ]
 
-export function MarketInsights() {
+import { HomepageSection } from "@/backend/core/domain/types"
+
+interface MarketInsightsProps {
+  sectionData?: HomepageSection;
+}
+
+export function MarketInsights({ sectionData }: MarketInsightsProps) {
+  if (sectionData && !sectionData.isVisible) return null;
+
+  const title = sectionData?.title || "Where Smart Money Is Moving";
+  const subtitle = sectionData?.subtitle || "Market Intelligence";
+
   return (
     <section className="py-24 bg-background">
       <div className="container mx-auto px-4 md:px-8">
@@ -57,10 +68,9 @@ export function MarketInsights() {
 
         {/* Market Intelligence */}
         <div className="text-center mb-16">
-          <p className="text-primary font-semibold uppercase tracking-[0.3em] text-sm mb-4">Market Intelligence</p>
-          <h2 className="font-heading text-3xl md:text-5xl font-bold text-white">
-            Where Smart Money <br className="hidden md:block" />
-            Is Moving
+          <p className="text-primary font-semibold uppercase tracking-[0.3em] text-sm mb-4">{subtitle}</p>
+          <h2 className="font-heading text-3xl md:text-5xl font-bold text-white whitespace-pre-line">
+            {title}
           </h2>
         </div>
 

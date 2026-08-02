@@ -29,7 +29,19 @@ const DEFAULT_TESTIMONIALS = [
   }
 ]
 
-export function Testimonials({ testimonials = [] }: { testimonials?: any[] }) {
+import { HomepageSection, Testimonial } from "@/backend/core/domain/types"
+
+interface TestimonialsProps {
+  testimonials?: Testimonial[];
+  sectionData?: HomepageSection;
+}
+
+export function Testimonials({ testimonials = [], sectionData }: TestimonialsProps) {
+  if (sectionData && !sectionData.isVisible) return null;
+
+  const title = sectionData?.title || "Trusted by Discerning Investors";
+  const subtitle = sectionData?.subtitle || "What Our Investors Say";
+
   const displayTestimonials = testimonials.length > 0 ? testimonials : DEFAULT_TESTIMONIALS;
 
   if (displayTestimonials.length === 0) return null;
@@ -40,8 +52,8 @@ export function Testimonials({ testimonials = [] }: { testimonials?: any[] }) {
 
       <div className="container mx-auto px-4 md:px-8 relative z-10">
         <div className="text-center mb-16">
-          <p className="text-primary font-semibold uppercase tracking-[0.3em] text-sm mb-4">What Our Investors Say</p>
-          <h2 className="font-heading text-3xl md:text-5xl font-bold text-white">Trusted by Discerning Investors</h2>
+          <p className="text-primary font-semibold uppercase tracking-[0.3em] text-sm mb-4">{subtitle}</p>
+          <h2 className="font-heading text-3xl md:text-5xl font-bold text-white">{title}</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -60,7 +72,7 @@ export function Testimonials({ testimonials = [] }: { testimonials?: any[] }) {
               <Quote className="w-8 h-8 text-primary/40 mb-6 shrink-0" />
 
               <p className="text-muted-foreground leading-relaxed text-sm flex-1 mb-8">
-                &quot;{t.testimonial || t.quote}&quot;
+                &quot;{t.testimonial}&quot;
               </p>
 
               <div className="flex items-end justify-between border-t border-border pt-6">
