@@ -74,72 +74,64 @@ export function FeaturedLocations({ locations = [], sectionData }: FeaturedLocat
     });
   }
 
-  if (displayLocations.length === 0) return null;
+  if (displayLocations.length === 0 && !sectionData?.jsonContent) return null;
+
+  const finalLocations = (sectionData?.jsonContent as any)?.locations || displayLocations;
 
   return (
     <section className="py-24 bg-background">
       <div className="container mx-auto px-4 md:px-8">
-        <div className="text-center mb-16 max-w-3xl mx-auto">
-          <h2 className="font-heading text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white">
-            {title}
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            {description}
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+          <div className="max-w-2xl">
+            <p className="text-primary font-semibold uppercase tracking-[0.3em] text-sm mb-4">
+              {subtitle}
+            </p>
+            <h2 className="font-heading text-3xl md:text-5xl font-bold text-white leading-tight">
+              {title}
+            </h2>
+            <p className="text-muted-foreground mt-4 text-lg">
+              {description}
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {displayLocations.map((location, idx) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {finalLocations.map((loc: any, idx: number) => (
             <motion.div
-              key={location.city}
-              initial={{ opacity: 0, y: 20 }}
+              key={loc.city}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: idx * 0.2 }}
-              className="group relative overflow-hidden h-[500px] border border-border"
+              transition={{ delay: idx * 0.2, duration: 0.6 }}
+              className="group relative h-[450px] overflow-hidden rounded-sm cursor-pointer"
             >
-              <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10" />
-                <img 
-                  src={location.imageUrl} 
-                  alt={location.city} 
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-1000"
-                />
-              </div>
+              <Image
+                src={loc.imageUrl}
+                alt={loc.city}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
               
-              <div className="absolute inset-0 z-20 flex flex-col justify-end p-8">
-                <div className="mb-2 flex items-center gap-2">
-                  <MapPin className="text-primary w-5 h-5" />
-                  <span className="text-primary font-semibold tracking-wider uppercase text-sm">
-                    {location.subtitle}
-                  </span>
-                </div>
-                <h3 className="font-heading text-4xl font-bold text-white mb-6">
-                  {location.city}
-                </h3>
+              <div className="absolute bottom-0 left-0 right-0 p-8">
+                <p className="text-primary font-medium tracking-wider text-sm mb-2 uppercase">{loc.subtitle}</p>
+                <h3 className="font-heading text-3xl font-bold text-white mb-4">{loc.city}</h3>
                 
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="bg-black/40 backdrop-blur border border-white/10 p-4">
-                    <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Average ROI</p>
-                    <p className="text-white font-bold flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-primary" /> {location.roi}
-                    </p>
+                <div className="flex flex-wrap gap-4 mb-6">
+                  <div className="bg-black/50 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-sm">
+                    <span className="text-muted-foreground text-xs block mb-1">Expected ROI</span>
+                    <span className="text-white font-semibold">{loc.roi}</span>
                   </div>
-                  <div className="bg-black/40 backdrop-blur border border-white/10 p-4">
-                    <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Potential</p>
-                    <p className="text-white font-bold">{location.potential}</p>
+                  <div className="bg-black/50 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-sm">
+                    <span className="text-muted-foreground text-xs block mb-1">Outlook</span>
+                    <span className="text-white font-semibold">{loc.potential}</span>
                   </div>
                 </div>
-                
-                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                  <div className="text-sm text-gray-300">
-                    <span className="text-primary">Key Areas: </span>
-                    {location.popularAreas.join(", ")}
-                  </div>
-                  <Link href={`/noblenestsco/properties?city=${encodeURIComponent(location.city)}`} className="flex items-center gap-2 text-white hover:text-primary transition-colors uppercase tracking-widest text-sm font-semibold group/btn">
-                    Explore 
-                    <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" />
-                  </Link>
+
+                <div className="border-t border-white/10 pt-4 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                  <p className="text-sm text-gray-300">
+                    <span className="text-white font-semibold">Key Corridors:</span> {loc.popularAreas.join(" • ")}
+                  </p>
                 </div>
               </div>
             </motion.div>

@@ -49,6 +49,8 @@ export function WhyChooseUs({ sectionData }: WhyChooseUsProps) {
   const title = sectionData?.title || "Why Noble Nests";
   const description = sectionData?.description || "We are not just a marketplace. We are your premium investment advisory partner, committed to high-growth, secure wealth creation.";
 
+  const reasons = (sectionData?.jsonContent as any)?.reasons || REASONS;
+
   return (
     <section className="py-24 bg-background">
       <div className="container mx-auto px-4 md:px-8">
@@ -62,7 +64,7 @@ export function WhyChooseUs({ sectionData }: WhyChooseUsProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {REASONS.map((reason, index) => (
+          {reasons.map((reason: any, index: number) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
@@ -72,7 +74,14 @@ export function WhyChooseUs({ sectionData }: WhyChooseUsProps) {
               className="p-8 border border-border bg-card/50 hover:bg-card transition-colors duration-300 group"
             >
               <div className="mb-6 p-4 rounded-full bg-primary/10 inline-block group-hover:scale-110 transition-transform duration-300">
-                {reason.icon}
+                {/* Dynamically render icon based on string name if possible, fallback to a default */}
+                {reason.icon === "CheckCircle" && <CheckCircle className="w-8 h-8 text-primary" />}
+                {reason.icon === "Search" && <Search className="w-8 h-8 text-primary" />}
+                {reason.icon === "Handshake" && <Handshake className="w-8 h-8 text-primary" />}
+                {reason.icon === "FileText" && <FileText className="w-8 h-8 text-primary" />}
+                {reason.icon === "Shield" && <Shield className="w-8 h-8 text-primary" />}
+                {reason.icon === "MapPin" && <MapPin className="w-8 h-8 text-primary" />}
+                {!reason.icon && <CheckCircle className="w-8 h-8 text-primary" />}
               </div>
               <h3 className="font-heading text-xl font-semibold mb-3 text-white tracking-wide">
                 {reason.title}

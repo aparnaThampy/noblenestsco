@@ -44,26 +44,35 @@ export function MarketInsights({ sectionData }: MarketInsightsProps) {
   const title = sectionData?.title || "Where Smart Money Is Moving";
   const subtitle = sectionData?.subtitle || "Market Intelligence";
 
+  const stats = (sectionData?.jsonContent as any)?.stats || STATS;
+  const trends = (sectionData?.jsonContent as any)?.trends || MARKET_TRENDS;
+
   return (
     <section className="py-24 bg-background">
       <div className="container mx-auto px-4 md:px-8">
 
         {/* Portfolio Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border mb-24">
-          {STATS.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
-              className="bg-background flex flex-col items-center justify-center py-10 px-6 text-center"
-            >
-              <stat.icon className="w-6 h-6 text-primary mb-4" />
-              <p className="font-heading text-3xl md:text-4xl font-bold text-white mb-2">{stat.value}</p>
-              <p className="text-muted-foreground text-sm uppercase tracking-wider">{stat.label}</p>
-            </motion.div>
-          ))}
+          {stats.map((stat: any, i: number) => {
+            let Icon = TrendingUp;
+            if (stat.icon === "Building") Icon = Building;
+            if (stat.icon === "Users") Icon = Users;
+            if (stat.icon === "Award") Icon = Award;
+            return (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                className="bg-background flex flex-col items-center justify-center py-10 px-6 text-center"
+              >
+                <Icon className="w-6 h-6 text-primary mb-4" />
+                <p className="font-heading text-3xl md:text-4xl font-bold text-white mb-2">{stat.value}</p>
+                <p className="text-muted-foreground text-sm uppercase tracking-wider">{stat.label}</p>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Market Intelligence */}
@@ -75,7 +84,7 @@ export function MarketInsights({ sectionData }: MarketInsightsProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {MARKET_TRENDS.map((trend, idx) => (
+          {trends.map((trend: any, idx: number) => (
             <motion.div
               key={trend.title}
               initial={{ opacity: 0, x: -20 }}

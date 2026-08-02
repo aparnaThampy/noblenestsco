@@ -67,6 +67,7 @@ model HomepageSection {
   isVisible   Boolean  @default(true)
   sortOrder   Int
   theme       String
+  jsonContent Json?    // Stores complex/structured data for the section
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -194,4 +195,29 @@ model Notification {
   message     String
   isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String
+  sortOrder Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InvestmentHub {
+  id          String   @id @default(cuid())
+  city        String
+  subtitle    String
+  roi         String
+  potential   String
+  popularAreas String[]
+  imageUrl    String
+  sortOrder   Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
