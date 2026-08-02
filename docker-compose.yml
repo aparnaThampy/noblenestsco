@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  # ─── Frontend (Next.js) ───────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://noblenests.co}
+        NEXT_PUBLIC_APP_NAME: "Noble Nests Co"
+    container_name: noble-nests-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - STORAGE_PROVIDER=${STORAGE_PROVIDER:-cloudflare-r2}
+      - R2_ACCOUNT_ID=${R2_ACCOUNT_ID}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+      - R2_BUCKET=${R2_BUCKET:-noblenests-prod-assets}
+      - R2_REGION=${R2_REGION:-auto}
+      - R2_PUBLIC_URL=${R2_PUBLIC_URL:-https://cdn.noblenests.co}
+      - R2_ENDPOINT=${R2_ENDPOINT}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-https://noblenests.co}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@noblenests.co}
+      - EMAIL_TO_ADVISOR=${EMAIL_TO_ADVISOR:-invest@noblenests.co}
+    expose:
+      - "3000"
+    networks:
+      - noble-nests-network
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─── Redis (Rate Limiting & Caching) ──────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: noble-nests-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - noble-nests-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ─── Nginx Reverse Proxy ──────────────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: noble-nests-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-cache:/var/cache/nginx
+    networks:
+      - noble-nests-network
+    depends_on:
+      - frontend
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  redis-data:
+    driver: local
+  nginx-cache:
+    driver: local
+
+networks:
+  noble-nests-network:
+    driver: bridge
